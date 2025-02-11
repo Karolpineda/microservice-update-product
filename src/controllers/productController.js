@@ -1,35 +1,39 @@
 const Product = require("../models/productModel");
 
+// Función para actualizar un producto
 const updateProduct = async (req, res) => {
   try {
-    // Extraemos el ID del producto y los campos a actualizar del body
-    const { id } = req.params;
-    const { name, stock, updatedBy } = req.body;
+    const { id } = req.params;  // Obtener el id del producto desde la URL
+    const { name, stock, updatedBy } = req.body;  // Obtener los datos a actualizar desde el cuerpo de la solicitud
 
-    // Validamos que el ID y el usuario que actualiza estén presentes
-    if (!id || !updatedBy) {
+    // Verificar que los campos obligatorios estén presentes
+    if (!name || !updatedBy) {
       return res.status(400).json({
-        message: "Faltan campos obligatorios (id, updatedBy)."
+        message: "Faltan campos obligatorios (name, updatedBy)."
       });
     }
 
-    // Buscar y actualizar el producto
-    const updatedProduct = await Product.findByIdAndUpdate(
-      id,
-      { name, stock, updatedBy, updatedAt: Date.now() },
-      { new: true, runValidators: true }
-    );
+    // Buscar el producto en la base de datos
+    const product = await Product.findByPk(id);
 
-    // Si el producto no se encuentra
-    if (!updatedProduct) {
+    // Si no se encuentra el producto, devolver un error
+    if (!product) {
       return res.status(404).json({
         message: "Producto no encontrado."
       });
     }
 
+    // Actualizar el producto con los nuevos datos
+    product.name = name;
+    product.stock = stock || product.stock;  // Solo actualizar el stock si se proporciona
+    product.updatedBy = updatedBy;
+
+    // Guardar el producto actualizado en la base de datos
+    await product.save();
+
     return res.status(200).json({
       message: "Producto actualizado exitosamente.",
-      product: updatedProduct
+      product
     });
   } catch (error) {
     console.error("Error al actualizar producto:", error);
