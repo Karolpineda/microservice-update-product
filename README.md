@@ -50,6 +50,6 @@ The application will run at: http://localhost:8082
 
 ## API Usage
 ### Create a Product
-Endpoint: POST /api/products/:productId
+Endpoint: PUT /api/products/:productId
 
 This endpoint allows you to update a product in the database using the provided data.
